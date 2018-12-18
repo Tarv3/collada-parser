@@ -1,8 +1,8 @@
-use xml::reader::{EventReader, XmlEvent};
 use std::collections::hash_map::HashMap;
 use std::io::{Read, Write};
 use std::error::Error;
 use super::{node::*, error::*};
+use xml::reader::{EventReader, XmlEvent};
 
 pub struct XmlTree {
     nodes: Vec<XmlNode>,
@@ -71,7 +71,7 @@ impl XmlTree {
         })
     }
 
-    pub fn parse_xml<R: Read>(reader: EventReader<R>) -> Result<XmlTree, InvalidXml> {
+    pub fn parse_xml<R: Read>(reader: EventReader<R>) -> Result<XmlTree, Box<Error>> {
         let mut node_stack: Vec<(usize, String)> = vec![];
 
         let mut tree = XmlTree::new();
@@ -83,7 +83,7 @@ impl XmlTree {
 
                     let parent = match node_stack.last() {
                         Some((parent_id, _)) => {
-                            tree.nodes[*parent_id].add_child(index).or_else(|_| Err(InvalidXml))?;
+                            tree.nodes[*parent_id].add_child(index)?;
                             Some(*parent_id)
                         }
                         None => None
@@ -96,24 +96,24 @@ impl XmlTree {
                 Ok(XmlEvent::EndElement { name }) => {
                     let node_name = match node_stack.pop() {
                         Some((_, name)) => name,
-                        None => return Err(InvalidXml),
+                        None => return Err(Box::new(InvalidXml)),
                     };
 
                     if node_name != name.local_name {
-                        return Err(InvalidXml);
+                        return Err(Box::new(InvalidXml));
                     }
                 },
                 Ok(XmlEvent::Characters(chars)) => {
                     match node_stack.last() {
                         Some((id, _)) => {
-                            tree.nodes[*id].set_data_to_characters(chars).or_else(|_| Err(InvalidXml))?;
+                            tree.nodes[*id].set_data_to_characters(chars)?;
                         }
-                        _ => return Err(InvalidXml),
+                        _ => return Err(Box::new(InvalidXml)),
                     }
                 },
                 Err(e) => {
                     println!("Error: {}", e);
-                    return Err(InvalidXml);
+                    return Err(Box::new(InvalidXml));
                 }
                 _ => {}
             }

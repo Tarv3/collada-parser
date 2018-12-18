@@ -1,5 +1,6 @@
 use collada::{util::*, error::*};
 use xml_tree::*;
+use std::error::Error;
 
 #[derive(Debug)]
 pub struct VertexWeights {
@@ -36,12 +37,12 @@ impl VertexWeights {
         }))
     }
 
-    pub fn parse_vertex_weights(node: &XmlNode, tree: &XmlTree) -> Result<VertexWeights, VertexWeightsError> {
+    pub fn parse_vertex_weights(node: &XmlNode, tree: &XmlTree) -> Result<VertexWeights, Box<Error>> {
         if node.name.local_name != "vertex_weights" {
-            return Err(VertexWeightsError);
+            return Err(Box::new(VertexWeightsError));
         }
         let count = node.get_attribute_with_name("count").ok_or(VertexWeightsError)?;
-        let count = count.parse().or_else(|_| Err(VertexWeightsError))?;
+        let count = count.parse()?;
         let mut joints = None;
         let mut weights = None;
         let mut vertex_weight_count: Vec<usize> = vec![];
@@ -56,17 +57,13 @@ impl VertexWeights {
                     let name = child.get_attribute_with_name("semantic").ok_or(VertexWeightsError)?;
                     match name {
                         "JOINT" => {
-                            // let source = child.get_attribute_with_name("source").ok_or(VertexWeightsError)?;
-                            // let source = source.to_string();
                             let offset = child.get_attribute_with_name("offset").ok_or(VertexWeightsError)?;
-                            let offset = offset.parse().or_else(|_| Err(VertexWeightsError))?;
+                            let offset = offset.parse()?;
                             joints = Some(offset);
                         },
                         "WEIGHT" => {
-                            // let source = child.get_attribute_with_name("source").ok_or(VertexWeightsError)?;
-                            // let source = source.to_string();
                             let offset = child.get_attribute_with_name("offset").ok_or(VertexWeightsError)?;
-                            let offset = offset.parse().or_else(|_| Err(VertexWeightsError))?;
+                            let offset = offset.parse()?;
                             weights = Some(offset);
                         },
                         _ => {},
@@ -74,18 +71,18 @@ impl VertexWeights {
                 }
                 "vcount" => {
                     let characters = child.get_characters().ok_or(VertexWeightsError)?;
-                    vertex_weight_count = parse_array(characters).or_else(|_| Err(VertexWeightsError))?;
+                    vertex_weight_count = parse_array(characters)?;
                 }
                 "v" => {
                     let characters = child.get_characters().ok_or(VertexWeightsError)?;
-                    indices = parse_array(characters).or_else(|_| Err(VertexWeightsError))?;
+                    indices = parse_array(characters)?;
                 }
                 _ => {}
             }
         }
 
         if joints.is_none() || weights.is_none() {
-            return Err(VertexWeightsError);
+            return Err(Box::new(VertexWeightsError));
         }
         let joints = joints.unwrap();
         let weights = weights.unwrap();
@@ -94,7 +91,7 @@ impl VertexWeights {
         || (joints != 1 && weights != 1) 
         || joints == weights
         {
-            return Err(VertexWeightsError);
+            return Err(Box::new(VertexWeightsError));
         }
 
         Ok(VertexWeights {

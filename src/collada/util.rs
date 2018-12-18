@@ -1,7 +1,7 @@
-use std::str::FromStr;
-use super::error::*;
 use math::Matrix4;
+use super::error::*;
 use std::error::Error;
+use std::str::FromStr;
 use xml_tree::*;
 
 pub fn parse_array<T: FromStr>(array: &str) -> Result<Vec<T>, ArrayError> {

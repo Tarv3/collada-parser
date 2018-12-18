@@ -32,9 +32,9 @@ impl MeshParser {
         None
     }
 
-    pub fn parse_mesh(node: &XmlNode, tree: &XmlTree) -> Result<Self, MeshParseError> {
+    pub fn parse_mesh(node: &XmlNode, tree: &XmlTree) -> Result<Self, Box<Error>> {
         if node.name.local_name != "mesh" {
-            return Err(MeshParseError);
+            return Err(Box::new(MeshParseError));
         }
 
         let mut sources: Vec<DataSource<f32>> = vec![];
@@ -48,17 +48,17 @@ impl MeshParser {
             match child.name.local_name.as_ref() {
                 "source" => {
                     let source = DataSource::parse_source(child, tree, "float_array");
-                    sources.push(source.or_else(|_| Err(MeshParseError))?);
+                    sources.push(source?);
                 }
                 "vertices" => {
-                    vertices = Vertices::parse_vertices(child, tree).or_else(|_| Err(MeshParseError))?;
+                    vertices = Vertices::parse_vertices(child, tree)?;
                 }
                 "triangles" => {
-                    let primitive_element = PrimitiveElement::parse_primitive_element(child, tree).or_else(|_| Err(MeshParseError))?;
+                    let primitive_element = PrimitiveElement::parse_primitive_element(child, tree)?;
                     primitive_elements.push(primitive_element);
                 }
                 "lines" => {
-                    let primitive_element = PrimitiveElement::parse_primitive_element(child, tree).or_else(|_| Err(MeshParseError))?;
+                    let primitive_element = PrimitiveElement::parse_primitive_element(child, tree)?;
                     primitive_elements.push(primitive_element);
                 }
                 _ => {}
@@ -67,7 +67,7 @@ impl MeshParser {
         }
 
         if !vertices.map_semantics(sources.as_ref()) {
-            return Err(MeshParseError);
+            return Err(Box::new(MeshParseError));
         }
 
         Ok(
@@ -79,9 +79,9 @@ impl MeshParser {
         )
     }
 
-    pub fn into_mesh<T: Vertex>(&self) -> Result<GenericMesh<T>, MeshError> {
+    pub fn into_mesh<T: Vertex>(&self) -> Result<GenericMesh<T>, Box<Error>> {
         if self.primitive_elements.is_empty() {
-            return Err(MeshError);
+            return Err(Box::new(MeshError));
         }
 
         let mut primitive_elements = self.primitive_elements.iter();
@@ -89,14 +89,14 @@ impl MeshParser {
 
         let sources = first_primitive.get_ptnc_sources();
         if &sources.0[1..] != self.vertices.get_id() {
-            return Err(MeshError);
+            return Err(Box::new(MeshError));
         }
 
         let mut shapes = vec![];
         shapes.extend(first_primitive.ptnc_shape_iter());
         for element in primitive_elements {
             if sources != element.get_ptnc_sources() {
-                return Err(MeshError);
+                return Err(Box::new(MeshError));
             }
 
             shapes.extend(element.ptnc_shape_iter());
@@ -105,7 +105,7 @@ impl MeshParser {
         let mut vertices = vec![];
         let count = self.vertices.count().ok_or(MeshError)?;
         for i in 0..count {
-            let mut attributes = self.vertices.get_nth_attributes(i, self.sources.as_ref()).or_else(|_| Err(MeshError))?;
+            let mut attributes = self.vertices.get_nth_attributes(i, self.sources.as_ref())?;
             let vertex = T::from_attributes(attributes).ok_or(MeshError)?;
             vertices.push(vertex);
         }

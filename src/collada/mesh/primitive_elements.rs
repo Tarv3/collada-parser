@@ -1,6 +1,7 @@
 use super::index::*;
 use collada::{util::*, PTNCIndex, PTNIndex, error::*};
 use xml_tree::*;
+use std::error::Error;
 
 #[derive(Debug)]
 pub struct PrimitiveIndices {
@@ -44,8 +45,8 @@ impl PrimitiveIndices {
         self.element_count
     }
 
-    pub fn parse_indices(node: &XmlNode, tree: &XmlTree) -> Result<PrimitiveIndices, PrimitiveIndicesError> {
-        let accessor = IndexAccessor::parse_accessor(node, tree).or_else(|_| Err(PrimitiveIndicesError))?;
+    pub fn parse_indices(node: &XmlNode, tree: &XmlTree) -> Result<PrimitiveIndices, Box<Error>> {
+        let accessor = IndexAccessor::parse_accessor(node, tree)?;
         let mut indices = vec![];
 
         let children = node.get_children().ok_or(PrimitiveIndicesError)?;
@@ -54,7 +55,7 @@ impl PrimitiveIndices {
             let child = child.unwrap();
 
             match child.name.local_name.as_ref() {
-                "p" => indices = parse_array(child.get_characters().ok_or(PrimitiveIndicesError)?).or_else(|_| Err(PrimitiveIndicesError))?,
+                "p" => indices = parse_array(child.get_characters().ok_or(PrimitiveIndicesError)?)?,
                 _ => {},
             }
         }
@@ -90,17 +91,17 @@ impl PrimitiveElement {
         self.count
     }
 
-    pub fn parse_primitive_element(node: &XmlNode, tree: &XmlTree) -> Result<PrimitiveElement, PrimitiveElementError> {
+    pub fn parse_primitive_element(node: &XmlNode, tree: &XmlTree) -> Result<PrimitiveElement, Box<Error>> {
         let count = node.get_attribute_with_name("count").ok_or(PrimitiveElementError)?;
-        let count: usize = count.parse().or_else(|_| Err(PrimitiveElementError))?;
+        let count: usize = count.parse()?;
 
         let p_type = match node.name.local_name.as_ref() {
             "triangles" => PrimitiveType::Triangles,
             "lines" => PrimitiveType::Lines,
-            _ => return Err(PrimitiveElementError),
+            _ => return Err(Box::new(PrimitiveElementError)),
         };
 
-        let indices = PrimitiveIndices::parse_indices(node, tree).or_else(|_| Err(PrimitiveElementError))?;
+        let indices = PrimitiveIndices::parse_indices(node, tree)?;
         
         Ok(PrimitiveElement {
             count,

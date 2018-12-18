@@ -1,5 +1,6 @@
 use xml_tree::*;
 use collada::{*, util::*, error::*};
+use std::error::Error;
 
 #[derive(Debug)]
 pub struct IndexAccessor {
@@ -75,7 +76,7 @@ impl IndexAccessor {
         (&self.vertex.source[..], tex_coord, normal)
     }
 
-    pub fn parse_accessor(node: &XmlNode, tree: &XmlTree) -> Result<IndexAccessor, IndexAccessorError> {
+    pub fn parse_accessor(node: &XmlNode, tree: &XmlTree) -> Result<IndexAccessor, Box<Error>> {
         let mut found = false;
         let mut vertex: (usize, Option<&str>, bool) = (0, None, false);
         let mut normal: (Option<usize>, Option<&str>, bool)  = (None, None, false);
@@ -90,36 +91,36 @@ impl IndexAccessor {
                 "input" => {
                     found = true;
                     let offset = child.get_attribute_with_name("offset").ok_or(IndexAccessorError)?;
-                    let offset: usize = offset.parse().or_else(|_| Err(IndexAccessorError))?;
+                    let offset: usize = offset.parse()?;
 
                     let source = match child.get_attribute_with_name("source") {
                         Some(value) => value,
-                        None => return Err(IndexAccessorError)
+                        None => return Err(Box::new(IndexAccessorError))
                     };
 
                     match child.get_attribute_with_name("semantic") {
                         Some(value) => match value {
                             "VERTEX" => {
                                 if vertex.2 == true {
-                                    return Err(IndexAccessorError);
+                                    return Err(Box::new(IndexAccessorError));
                                 }
                                 vertex = (offset, Some(source), true);
                             }
                             "NORMAL" => {
                                 if normal.2 == true {
-                                    return Err(IndexAccessorError);
+                                    return Err(Box::new(IndexAccessorError));
                                 }
                                 normal = (Some(offset), Some(source), true);
                             }
                             "COLOR" => {
                                 if color.2 == true {
-                                    return Err(IndexAccessorError);
+                                    return Err(Box::new(IndexAccessorError));
                                 }
                                 color = (Some(offset), Some(source), true);
                             }
                             "TEXCOORD" => {
                                 if tex_coord.2 == true {
-                                    return Err(IndexAccessorError);
+                                    return Err(Box::new(IndexAccessorError));
                                 }
                                 tex_coord = (Some(offset), Some(source), true);
                             }
@@ -160,7 +161,7 @@ impl IndexAccessor {
         };
 
         if !accessor.no_duplicates() || !accessor.has_valid_offsets() || !found {
-            return Err(IndexAccessorError);
+            return Err(Box::new(IndexAccessorError));
         }
 
         Ok(accessor)

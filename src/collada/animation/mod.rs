@@ -1,8 +1,8 @@
-use super::source::DataSource;
-use math::Matrix4;
-use xml_tree::*;
-use std::error::Error;
 use collada::error::*;
+use math::{Matrix4, Matrix4CreationError};
+use std::error::Error;
+use super::source::DataSource;
+use xml_tree::*;
 
 #[derive(Debug)]
 pub struct AnimationParser {
@@ -59,15 +59,15 @@ impl AnimationParser {
         })
     }
 
-    pub fn into_animation(&self) -> Result<Animation, Box<Error>> {
+    pub fn into_animation(&self) -> Result<Animation, Matrix4CreationError> {
         let mut sample_times = vec![];
         for time in self.sample_times.iter() {
             sample_times.push(time[0]);
         }
 
         let mut transformations = vec![];
-        for time in self.transformations.iter() {
-            let matrix = Matrix4::from_slice(time)?;
+        for matrix in self.transformations.iter() {
+            let matrix = Matrix4::from_slice(matrix)?;
             transformations.push(matrix);
         }
 

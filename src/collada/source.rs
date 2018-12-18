@@ -1,6 +1,7 @@
 use xml_tree::*;
 use collada::{accessor::*, error::*, util::*};
 use std::str::FromStr;
+use std::error::Error;
 
 #[derive(Debug)]
 pub struct DataSource<T> {
@@ -30,9 +31,9 @@ impl<T: FromStr> DataSource<T> {
         self.accessor.count()
     }
 
-    pub fn parse_source(node: &XmlNode, tree: &XmlTree, array_name: &str) -> Result<DataSource<T>, DataSourceError> {
+    pub fn parse_source(node: &XmlNode, tree: &XmlTree, array_name: &str) -> Result<DataSource<T>, Box<Error>> {
         if node.name.local_name != "source" {
-            return Err(DataSourceError)
+            return Err(Box::new(DataSourceError))
         }
         let id = node.get_attribute_with_name("id").ok_or(DataSourceError)?;
         let mut found_array = false;
@@ -46,33 +47,33 @@ impl<T: FromStr> DataSource<T> {
             match child.name.local_name.as_ref() {
                 x if x == array_name  => {
                     if found_array {
-                        return Err(DataSourceError);
+                        return Err(Box::new(DataSourceError));
                     }
 
                     let chars = child.get_characters().ok_or(DataSourceError)?;
-                    array = parse_array(chars).or_else(|_| Err(DataSourceError))?;
+                    array = parse_array(chars)?;
                     found_array = true;
                 },
                 "technique_common" => {
                     if accessor.is_some() {
-                        return Err(DataSourceError);
+                        return Err(Box::new(DataSourceError));
                     }
 
                     let child_children = child.get_children().ok_or(DataSourceError)?;
                     if child_children.len() != 1 {
-                        return Err(DataSourceError);
+                        return Err(Box::new(DataSourceError));
                     }
 
                     let accessor_index = child_children[0];
                     let accessor_node = tree.get_node(accessor_index).ok_or(DataSourceError)?;
-                    accessor = Some(Accessor::parse_accessor(accessor_node, tree).or_else(|_| Err(DataSourceError))?);
+                    accessor = Some(Accessor::parse_accessor(accessor_node, tree)?);
                 }
                 _ => {}
             }
         }
 
         if !found_array || accessor.is_none() {
-            return Err(DataSourceError);
+            return Err(Box::new(DataSourceError));
         }
 
         Ok(DataSource {

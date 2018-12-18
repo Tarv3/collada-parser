@@ -1,6 +1,6 @@
 use xml_tree::*;
 use collada::error::*;
-use std::marker::PhantomData;
+use std::{marker::PhantomData, error::Error};
 
 #[derive(Debug)]
 pub struct Accessor<T> {
@@ -31,15 +31,15 @@ impl<T> Accessor<T> {
         Some(&array[start..end])
     }
 
-    pub fn parse_accessor(node: &XmlNode, tree: &XmlTree) -> Result<Accessor<T>, AccessorParseError> {
+    pub fn parse_accessor(node: &XmlNode, tree: &XmlTree) -> Result<Accessor<T>, Box<Error>> {
         if node.name.local_name != "accessor" {
-            return Err(AccessorParseError)
+            return Err(Box::new(AccessorParseError))
         }
 
         let count = node.get_attribute_with_name("count").ok_or(AccessorParseError)?;
-        let count: usize = count.parse().or_else(|_| Err(AccessorParseError))?;
+        let count: usize = count.parse()?;
         let stride = node.get_attribute_with_name("stride").ok_or(AccessorParseError)?;
-        let stride: usize = stride.parse().or_else(|_| Err(AccessorParseError))?;
+        let stride: usize = stride.parse()?;
         let mut parameters = vec![];
 
         let children = node.get_children().ok_or(AccessorParseError)?;
