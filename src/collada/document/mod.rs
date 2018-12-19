@@ -6,7 +6,7 @@ pub mod visual_scene;
 pub use self::geometry::*;
 pub use self::controller::*;
 pub use self::visual_scene::*;
-use collada::{Animation, Skin, Skeleton, error::*};
+use collada::{Animation, Skin, Skeleton};
 use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
@@ -42,6 +42,13 @@ impl Document {
         }
 
         None
+    }
+
+    pub fn nth_scene_skeletons<'a>(&'a self, n: usize) -> impl Iterator<Item = &'a Skeleton> {
+        let scene = &self.scenes[n];
+        scene.nodes.iter()
+            .filter(|x| x.data.is_skeleton())
+            .map(|x| x.data.unwrap_skeleton_ref())
     }
 
     // Will return all skins that have a skeleton and mesh
