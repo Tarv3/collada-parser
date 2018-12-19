@@ -114,8 +114,29 @@ impl MeshParser {
         match sources.2 {
             Some(name) => {
                 let source = self.get_source_with_name(&name[1..]).ok_or(MeshError)?;
+                let param_names = source.get_parameter_names();
+                let mut x: Option<usize> = None;
+                let mut y: Option<usize> = None; 
+                let mut z: Option<usize> = None;
+                for (i, name) in param_names.iter().enumerate() {
+                    match name.as_ref() {
+                        "X" => x = Some(i),
+                        "Y" => y = Some(i),
+                        "Z" => z = Some(i),
+                        _ => {}
+                    }
+                }
+
+                if x.is_none() || y.is_none() || z.is_none() {
+                    return Err(Box::new(MeshError));
+                }
+
+                let x = x.unwrap();
+                let y = y.unwrap(); 
+                let z = z.unwrap();
+
                 for normal in source.iter() {
-                    let vec = Vector3 { x: normal[0], y: normal[1], z: normal[2] };
+                    let vec = Vector3 { x: normal[x], y: normal[y], z: normal[z] };
                     normals.push(vec);
                 }
             }
@@ -126,8 +147,26 @@ impl MeshParser {
         match sources.1 {
             Some(name) => {
                 let source = self.get_source_with_name(&name[1..]).ok_or(MeshError)?;
+                let param_names = source.get_parameter_names();
+                let mut s = None;
+                let mut t = None; 
+                for (i, name) in param_names.iter().enumerate() {
+                    match name.as_ref() {
+                        "S" => s = Some(i),
+                        "T" => t = Some(i),
+                        _ => {}
+                    }
+                }
+
+                if s.is_none() || t.is_none() {
+                    return Err(Box::new(MeshError));
+                }
+
+                let s = s.unwrap();
+                let t = t.unwrap();
+
                 for tex_coord in source.iter() {
-                    let vec = Vector2 { x: tex_coord[0], y: tex_coord[1] };
+                    let vec = Vector2 { x: tex_coord[s], y: tex_coord[t] };
                     tex_coords.push(vec);
                 }
             }

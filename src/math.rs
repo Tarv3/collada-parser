@@ -42,8 +42,8 @@ impl Vertex for Vector3 {
                 }
 
                 x = data[0];
-                y = data[0];
-                z = data[0];
+                y = data[1];
+                z = data[2];
             }
         }
 
