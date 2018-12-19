@@ -1,5 +1,5 @@
 [package]
-name = "xml-collada"
+name = "collada-parser"
 version = "0.1.0"
 authors = ["Josh <tarv360@gmail.com>"]
 

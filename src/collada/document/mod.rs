@@ -44,22 +44,29 @@ impl Document {
         None
     }
 
-    pub fn skin_skeleton_mesh_iter<'a>(&'a self, scene: usize) -> impl Iterator<Item = (Option<&'a Skin>, Option<&'a Skeleton>, Option<&'a Geometry>)> + 'a {
+    // Will return all skins that have a skeleton and mesh
+    pub fn skin_skeleton_mesh_iter<'a>(&'a self, scene: usize) -> impl Iterator<Item = (&'a Skin, &'a Skeleton, &'a Geometry)> + 'a {
         let scene = &self.scenes[scene];
 
         scene.nodes
             .iter()
             .filter(|x| x.data.is_controller_instance())
-            .map(move |x| {
+            .filter(move |x| {
                 let controller = x.data.unwrap_controller_ref();
                 let skin = self.get_skin_with_name(&controller.url[1..]);
                 let mesh = match skin {
-                    Some(skin) => {
-                        self.mesh_with_name(&skin.source[1..])
-                    }
-                    _ => None,
+                    Some(skin) => self.mesh_with_name(&skin.source[1..]).is_some(),
+                    None => false,
                 };
-                let skeleton = scene.get_skeleton_with_base_node(&controller.skeleton[1..]);
+                let skeleton = scene.get_skeleton_with_base_node(&controller.skeleton[1..]).is_some();
+                skin.is_some()
+                && mesh && skeleton
+            })
+            .map(move |x| {
+                let controller = x.data.unwrap_controller_ref();
+                let skin = self.get_skin_with_name(&controller.url[1..]).unwrap();
+                let mesh = self.mesh_with_name(&skin.source[1..]).unwrap();
+                let skeleton = scene.get_skeleton_with_base_node(&controller.skeleton[1..]).unwrap();
                 (skin, skeleton, mesh)
             })
     }
@@ -74,7 +81,10 @@ impl Document {
         if let Some(nodes) = nodes {
             for node in nodes {
                 let node = tree.get_node(*node).unwrap();
-                let children = node.get_children().ok_or(MissingChildrenError)?;
+                let children = match node.get_children() {
+                    Some(children) => children,
+                    None => continue,
+                };
 
                 for child in tree.nodes_iter(children.iter().map(|x| *x)) {
                     let child = child.unwrap();
@@ -92,7 +102,10 @@ impl Document {
         if let Some(nodes) = nodes {
             for node in nodes {
                 let node = tree.get_node(*node).unwrap();
-                let children = node.get_children().ok_or(MissingChildrenError)?;
+                let children = match node.get_children() {
+                    Some(children) => children,
+                    None => continue,
+                };
 
                 for child in tree.nodes_iter(children.iter().map(|x| *x)) {
                     let child = child.unwrap();
@@ -110,7 +123,10 @@ impl Document {
         if let Some(nodes) = nodes {
             for node in nodes {
                 let node = tree.get_node(*node).unwrap();
-                let children = node.get_children().ok_or(MissingChildrenError)?;
+                let children = match node.get_children() {
+                    Some(children) => children,
+                    None => continue,
+                };
 
                 for child in tree.nodes_iter(children.iter().map(|x| *x)) {
                     let child = child.unwrap();
@@ -128,7 +144,10 @@ impl Document {
         if let Some(nodes) = nodes {
             for node in nodes {
                 let node = tree.get_node(*node).unwrap();
-                let children = node.get_children().ok_or(MissingChildrenError)?;
+                let children = match node.get_children() {
+                    Some(children) => children,
+                    None => continue,
+                };
 
                 for child in tree.nodes_iter(children.iter().map(|x| *x)) {
                     let child = child.unwrap();
