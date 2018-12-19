@@ -23,28 +23,45 @@ pub struct Vector3 {
 }
 
 impl Vertex for Vector3 {
-    fn from_attributes<'a>(attributes: impl Iterator<Item = (&'a str, Option<&'a [f32]>)>) -> Option<Vector3> {
+    fn from_attributes<'a>(attributes: impl Iterator<Item = (&'a str, &'a [String], Option<&'a [f32]>)>) -> Option<Vector3> {
         let mut found_position = false;
         let mut x = 0.0;
         let mut y = 0.0;
         let mut z = 0.0;
 
-        for (name, data) in attributes {
+        for (name, param_names, data) in attributes {
+            if name != "POSITION" {
+                continue;
+            }
             if found_position {
                 return None;
             }
-
-            if name == "POSITION" {
-                found_position = true;
-                let data = data?;
-                if data.len() != 3 {
-                    return None;
-                }
-
-                x = data[0];
-                y = data[1];
-                z = data[2];
+            found_position = true;
+            
+            let data = data?;
+            if data.len() != 3 {
+                return None;
             }
+            let mut x_ind = None;
+            let mut y_ind = None;
+            let mut z_ind = None;
+
+            for (i, name) in param_names.iter().enumerate() {
+                match name.as_ref() {
+                    "X" => x_ind = Some(i),
+                    "Y" => y_ind = Some(i),
+                    "Z" => z_ind = Some(i),
+                    _ => {}
+                }
+            }
+
+            if x_ind.is_none() || y_ind.is_none() || z_ind.is_none() {
+                return None;
+            }
+
+            x = data[x_ind.unwrap()];
+            y = data[y_ind.unwrap()];
+            z = data[z_ind.unwrap()];
         }
 
         Some(Vector3{ x, y, z })        

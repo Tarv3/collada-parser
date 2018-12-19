@@ -105,7 +105,7 @@ impl MeshParser {
         let mut vertices = vec![];
         let count = self.vertices.count().ok_or(MeshError)?;
         for i in 0..count {
-            let mut attributes = self.vertices.get_nth_attributes(i, self.sources.as_ref())?;
+            let mut attributes = self.vertices.get_nth_attributes(i, self.sources.as_ref());
             let vertex = T::from_attributes(attributes).ok_or(MeshError)?;
             vertices.push(vertex);
         }
@@ -197,7 +197,7 @@ impl MeshParser {
 }
 
 pub trait Vertex: Sized {
-    fn from_attributes<'a>(attributes: impl Iterator<Item = (&'a str, Option<&'a [f32]>)>) -> Option<Self>;
+    fn from_attributes<'a>(attributes: impl Iterator<Item = (&'a str, &'a [String], Option<&'a [f32]>)>) -> Option<Self>;
 }
 
 #[derive(Debug)]

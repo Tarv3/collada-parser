@@ -62,12 +62,21 @@ impl Vertices {
     }
 
     pub fn get_nth_attributes<'a, 'b: 'a>(&'a self, n: usize, sources: &'b [DataSource<f32>]) 
-    -> Result<impl Iterator<Item = (&str, Option<&'a [f32]>)>, MissingSourceError> 
+    -> impl Iterator<Item = (&str, &[String], Option<&'a [f32]>)>
     {
-        Ok(self.inputs.iter().enumerate().map( move |(i, input)| {
+        self.inputs.iter().enumerate().map( move |(i, input)| {
             let source_index = self.semantics_map[i];
-            (input.semantic.as_ref(), sources[source_index].get_nth_value(n))
-        }))
+            let source = &sources[source_index];
+            (input.semantic.as_ref(), source.get_parameter_names(), source.get_nth_value(n))
+        })
+    }
+
+    pub fn get_attributes_parameters<'a, 'b: 'a>(&'a self, sources: &'b [DataSource<f32>]) 
+    -> impl Iterator<Item = (&str, &[String])> {
+        self.inputs.iter().enumerate().map( move |(i, input)| {
+            let source_index = self.semantics_map[i];
+            (input.semantic.as_ref(), sources[source_index].get_parameter_names())
+        })
     }
 
     pub fn parse_vertices(node: &XmlNode, tree: &XmlTree) -> Result<Vertices, VerticesError> {
