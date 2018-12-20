@@ -81,6 +81,10 @@ pub struct Matrix4 {
 }
 
 impl Matrix4 {
+    pub fn as_ref(&self) -> &[f32] {
+        &self.values[..]
+    }
+    
     pub fn identity() -> Matrix4 {
         let values = [
             1.0, 0.0, 0.0, 0.0,
