@@ -24,6 +24,22 @@ pub struct Document {
 }
 
 impl Document {
+    pub fn geometries(&self) -> &[Geometry] {
+        self.geometries.as_ref()
+    }
+
+    pub fn animations(&self) -> &[Animation] {
+        self.animations.as_ref()
+    }
+
+    pub fn controllers(&self) -> &[Controller] {
+        self.controllers.as_ref()
+    }
+
+    pub fn scenes(&self) -> &[VisualScene] {
+        self.scenes.as_ref()
+    }
+
     pub fn mesh_with_name<'a>(&'a self, name: &str) -> Option<&'a Geometry> {
         for geometry in &self.geometries {
             if geometry.id == name {
