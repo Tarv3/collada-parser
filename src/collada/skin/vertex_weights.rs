@@ -28,7 +28,7 @@ impl VertexWeights {
         if n >= self.count {
             return None;
         }
-        let start = 2 * n;
+        let start = self.vertex_weight_count[..n].iter().cloned().sum() * 2;
         let count = self.vertex_weight_count[n];
 
         Some((0..count).map(move |x| {
