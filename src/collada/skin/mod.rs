@@ -8,8 +8,8 @@ pub mod vertex_weights;
 
 #[derive(Copy, Clone, Debug)]
 pub struct JointWeight {
-    joint: usize,
-    weight: f32,
+    pub joint: usize,
+    pub weight: f32,
 }
 
 #[derive(Debug)]
