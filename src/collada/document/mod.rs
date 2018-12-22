@@ -88,12 +88,6 @@ impl Document {
             })
     }
 
-    pub fn skeleton_animations<'a>(&'a self, skeleton: &'a Skeleton) -> impl Iterator<Item = Option<&'a Animation>> + 'a {
-        skeleton.nodes.iter().map(move |node| {
-            self.animation_with_target(&node.id[..])
-        })
-    }
-
     pub fn parse_document(tree: &XmlTree) -> Result<Document, Box<Error>> {
         let mut geometries = vec![];
         let mut animations = vec![];

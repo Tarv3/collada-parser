@@ -1,4 +1,4 @@
-use collada::{error::*};
+use collada::{error::*, Animation};
 use xml_tree::*;
 use self::node::*;
 use std::error::Error;
@@ -29,6 +29,18 @@ impl Skeleton {
 
         None
     }
+
+    pub fn animations<'a>(&'a self, animations: &'a [Animation]) -> impl Iterator<Item = Option<&'a Animation>> + 'a {
+        self.nodes.iter().map(move |node| {
+            for animation in animations.iter() {
+                if node.id == &animation.target[..node.id.len()] {
+                    return Some(animation)
+                }
+            }
+
+            None
+        })
+    } 
 
     fn parse_node(&mut self, node: &XmlNode, tree: &XmlTree, index_stack: &mut Vec<usize>) -> Result<usize, Box<Error>> {
         if node.name.local_name != "node" {
