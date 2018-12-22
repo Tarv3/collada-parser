@@ -223,8 +223,10 @@ impl Display for MissingChildrenError {
 
 impl Error for MissingChildrenError {}
 
-#[derive(Copy, Clone, Debug)]
-pub struct SceneNodeError;
+#[derive(Clone, Debug)]
+pub struct SceneNodeError {
+    pub id: Option<String>,
+}
 
 impl Display for SceneNodeError {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {

@@ -98,21 +98,21 @@ impl SceneNode {
         let matrix = parse_transformation(node, tree)?;
         let mut data = SceneData::None;
 
-        let children = node.get_children().ok_or(SceneNodeError)?;
+        let children = node.get_children().ok_or(SceneNodeError {id: node.get_attribute_with_name("id").map(|x| x.to_string())})?;
         for child in tree.nodes_iter(children.iter().cloned()) {
             let child = child.unwrap();
             let is_none = data.is_none();
             match child.name.local_name.as_ref() {
                 "node" => {
                     if Some("JOINT") != child.get_attribute_with_name("type") || !is_none {
-                        return Err(Box::new(SceneNodeError));
+                        return Err(Box::new(SceneNodeError {id: child.get_attribute_with_name("id").map(|x| x.to_string())}));
                     } 
                     let skeleton = Skeleton::parse_skeleton(child, tree)?;
                     data = SceneData::Skeleton(skeleton);
                 }
                 "instance_controller" => {
                     if !is_none {
-                        return Err(Box::new(SceneNodeError));
+                        return Err(Box::new(SceneNodeError {id: child.get_attribute_with_name("id").map(|x| x.to_string())}));
                     }
 
                     let controller = InstanceController::parse_controller(child, tree)?;

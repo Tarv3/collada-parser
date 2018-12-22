@@ -44,6 +44,16 @@ impl Document {
         None
     }
 
+    pub fn animation_with_target<'a>(&'a self, target: &str) -> Option<&'a Animation> {
+        for animation in &self.animations {
+            if &animation.target[..target.len()] == target {
+                return Some(animation);
+            }
+        }
+
+        None
+    }
+
     pub fn nth_scene_skeletons<'a>(&'a self, n: usize) -> impl Iterator<Item = &'a Skeleton> {
         let scene = &self.scenes[n];
         scene.nodes.iter()
@@ -76,6 +86,12 @@ impl Document {
                 let skeleton = scene.get_skeleton_with_base_node(&controller.skeleton[1..]).unwrap();
                 (skin, skeleton, mesh)
             })
+    }
+
+    pub fn skeleton_animations<'a>(&'a self, skeleton: &'a Skeleton) -> impl Iterator<Item = Option<&'a Animation>> + 'a {
+        skeleton.nodes.iter().map(move |node| {
+            self.animation_with_target(&node.id[..])
+        })
     }
 
     pub fn parse_document(tree: &XmlTree) -> Result<Document, Box<Error>> {
