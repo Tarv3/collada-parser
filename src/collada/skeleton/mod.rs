@@ -34,11 +34,11 @@ impl Skeleton {
         self.nodes.iter().enumerate().map(move |(i, node)| {
             for animation in animations.iter() {
                 if node.id == &animation.target[..node.id.len()] {
-                    return (*i, Some(animation))
+                    return (i, Some(animation))
                 }
             }
 
-            (*i, None)
+            (i, None)
         })
     } 
 
