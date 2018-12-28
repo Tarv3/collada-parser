@@ -30,11 +30,11 @@ impl Skeleton {
         None
     }
 
-    pub fn animations<'a>(&'a self, animations: &'a [Animation]) -> impl Iterator<Item = Option<&'a Animation>> + 'a {
-        self.nodes.iter().map(move |node| {
+    pub fn animations<'a>(&'a self, animations: &'a [Animation]) -> impl Iterator<Item = (usize, Option<&'a Animation>)> + 'a {
+        self.nodes.iter().enumerate().map(move |(i, node)| {
             for animation in animations.iter() {
                 if node.id == &animation.target[..node.id.len()] {
-                    return Some(animation)
+                    return Some((*i, animation))
                 }
             }
 
