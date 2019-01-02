@@ -117,7 +117,7 @@ impl Matrix4 {
         
         for i in 0..4 {
             let row = self.get_row(i);
-            matrix.set_column(row);
+            matrix.set_column(i, row);
         }
         
         matrix
