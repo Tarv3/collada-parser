@@ -77,7 +77,7 @@ pub struct Vector2 {
 #[derive(Debug, Clone, Copy)]
 // Column major
 pub struct Matrix4 {
-    values: [f32; 16],
+    pub values: [f32; 16],
 }
 
 impl Matrix4 {
