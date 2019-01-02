@@ -124,9 +124,9 @@ impl Matrix4 {
     
     pub fn get_column(&self, index: usize) -> [f32; 4] {
         assert!(column < 4);
-        let column = column * 4;
+        let column = index * 4;
         [
-            self.values[column]
+            self.values[column],
             self.values[column + 1] = value[1],
             self.values[column + 2] = value[2],
             self.values[column + 3] = value[3]
