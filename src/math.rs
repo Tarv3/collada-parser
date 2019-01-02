@@ -111,6 +111,17 @@ impl Matrix4 {
             Err(Matrix4CreationError { given_array_size: len })
         }
     }
+    
+    pub fn transpose(&self) -> Matrix4 {
+        let mut matrix = Matrix4::identity();
+        
+        for i in 0..4 {
+            let row = self.get_row(i);
+            matrix.set_column(row);
+        }
+        
+        matrix
+    }
 
     pub fn print_mat(&self) {
         for i in 0..4 {
@@ -130,6 +141,16 @@ impl Matrix4 {
             self.values[column + 1],
             self.values[column + 2],
             self.values[column + 3]
+        ]
+    }
+    
+    pub fn get_row(&self, index: usize) -> [f32; 4] {
+        assert!(index < 4);
+        [
+            self.values[index],
+            self.values[index + 4],
+            self.values[index + 8],
+            self.values[index + 12]
         ]
     }
     
