@@ -123,7 +123,7 @@ impl Matrix4 {
     }
     
     pub fn get_column(&self, index: usize) -> [f32; 4] {
-        assert!(column < 4);
+        assert!(index < 4);
         let column = index * 4;
         [
             self.values[column],
