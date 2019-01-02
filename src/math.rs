@@ -127,9 +127,9 @@ impl Matrix4 {
         let column = index * 4;
         [
             self.values[column],
-            self.values[column + 1] = value[1],
-            self.values[column + 2] = value[2],
-            self.values[column + 3] = value[3]
+            self.values[column + 1],
+            self.values[column + 2],
+            self.values[column + 3]
         ]
     }
     
