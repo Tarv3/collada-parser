@@ -9,7 +9,7 @@ pub struct Geometry {
 }
 
 impl Geometry {
-    pub fn parse_geometry(node: &XmlNode, tree: &XmlTree) -> Result<Geometry, Box<Error>> {
+    pub fn parse_geometry(node: &XmlNode, tree: &XmlTree) -> Result<Geometry, Box<dyn Error>> {
         if node.name.local_name != "geometry" {
             return Err(Box::new(GeometryParseError));
         }

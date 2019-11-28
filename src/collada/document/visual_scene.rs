@@ -10,7 +10,7 @@ pub struct InstanceController {
 }
 
 impl InstanceController {
-    pub fn parse_controller(node: &XmlNode, tree: &XmlTree) -> Result<InstanceController, Box<Error>> {
+    pub fn parse_controller(node: &XmlNode, tree: &XmlTree) -> Result<InstanceController, Box<dyn Error>> {
 
         let children = node.get_children().ok_or(ControllerParseError)?;
         let mut found_skeleton = false;
@@ -94,7 +94,7 @@ pub struct SceneNode {
 }
 
 impl SceneNode {
-    pub fn parse_node(node: &XmlNode, tree: &XmlTree) -> Result<SceneNode, Box<Error>> {
+    pub fn parse_node(node: &XmlNode, tree: &XmlTree) -> Result<SceneNode, Box<dyn Error>> {
         let matrix = parse_transformation(node, tree)?;
         let mut data = SceneData::None;
 
@@ -149,7 +149,7 @@ impl VisualScene {
         None
     }
 
-    pub fn parse_scene(node: &XmlNode, tree: &XmlTree) -> Result<VisualScene, Box<Error>> {
+    pub fn parse_scene(node: &XmlNode, tree: &XmlTree) -> Result<VisualScene, Box<dyn Error>> {
         if node.name.local_name != "visual_scene" {
             return Err(Box::new(VisualSceneError));
         }

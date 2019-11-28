@@ -104,7 +104,7 @@ impl Document {
             })
     }
 
-    pub fn parse_document(tree: &XmlTree) -> Result<Document, Box<Error>> {
+    pub fn parse_document(tree: &XmlTree) -> Result<Document, Box<dyn Error>> {
         let mut geometries = vec![];
         let mut animations = vec![];
         let mut controllers = vec![];
@@ -202,7 +202,7 @@ impl Document {
         })
     }
 
-    pub fn parse_from_file(path: impl AsRef<Path>) -> Result<Document, Box<Error>> {
+    pub fn parse_from_file(path: impl AsRef<Path>) -> Result<Document, Box<dyn Error>> {
         let file = File::open(path).unwrap();
         let file = BufReader::new(file);
 

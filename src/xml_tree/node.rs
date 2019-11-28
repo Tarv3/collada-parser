@@ -29,7 +29,7 @@ impl XmlNode {
         }
     }
 
-    pub fn write_node<W: Write>(&self, nodes: &XmlTree, depth: usize, indent_size: usize, writer: &mut W) -> Result<(), Box<Error>> {
+    pub fn write_node<W: Write>(&self, nodes: &XmlTree, depth: usize, indent_size: usize, writer: &mut W) -> Result<(), Box<dyn Error>> {
         let child_depth = depth + 1;
 
         write!(writer, "{nothing:width$}<{}", self.name.local_name, nothing = "", width = depth * indent_size)?;

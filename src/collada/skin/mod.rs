@@ -44,7 +44,7 @@ impl SkinParser {
         Some(weights)
     }
 
-    pub fn parse_skin(node: &XmlNode, tree: &XmlTree, name: &str) -> Result<SkinParser, Box<Error>> {
+    pub fn parse_skin(node: &XmlNode, tree: &XmlTree, name: &str) -> Result<SkinParser, Box<dyn Error>> {
         if node.name.local_name != "skin" {
             return Err(Box::new(SkinParseError));
         }
@@ -102,7 +102,7 @@ impl SkinParser {
         })
     }
 
-    pub fn to_skin(&self) -> Result<Skin, Box<Error>> {
+    pub fn to_skin(&self) -> Result<Skin, Box<dyn Error>> {
         let mut joint_names = vec![];
         for name in self.joint_names.iter() {
             joint_names.push(name[0].to_string());
@@ -142,7 +142,7 @@ pub struct Skin {
 }
 
 impl Skin {
-    pub fn parse_skin(node: &XmlNode, tree: &XmlTree, name: &str) -> Result<Skin, Box<Error>> {
+    pub fn parse_skin(node: &XmlNode, tree: &XmlTree, name: &str) -> Result<Skin, Box<dyn Error>> {
         let parser = SkinParser::parse_skin(node, tree, name)?;
         Ok(parser.to_skin()?)
     }

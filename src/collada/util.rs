@@ -16,7 +16,7 @@ pub fn parse_array<T: FromStr>(array: &str) -> Result<Vec<T>, ArrayError> {
     Ok(values)
 }
 
-pub fn parse_transformation(node: &XmlNode, tree: &XmlTree) -> Result<Matrix4, Box<Error>> {
+pub fn parse_transformation(node: &XmlNode, tree: &XmlTree) -> Result<Matrix4, Box<dyn Error>> {
     let mut matrix = Matrix4::identity();
 
     let children = node.get_children().ok_or(TransformationParseError)?;

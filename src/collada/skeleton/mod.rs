@@ -42,7 +42,7 @@ impl Skeleton {
         })
     } 
 
-    fn parse_node(&mut self, node: &XmlNode, tree: &XmlTree, index_stack: &mut Vec<usize>) -> Result<usize, Box<Error>> {
+    fn parse_node(&mut self, node: &XmlNode, tree: &XmlTree, index_stack: &mut Vec<usize>) -> Result<usize, Box<dyn Error>> {
         if node.name.local_name != "node" {
             return Err(Box::new(SkeletonParseError));
         }
@@ -75,7 +75,7 @@ impl Skeleton {
         Ok(index.unwrap())
     }
 
-    pub fn parse_skeleton(node: &XmlNode, tree: &XmlTree) -> Result<Skeleton, Box<Error>> {
+    pub fn parse_skeleton(node: &XmlNode, tree: &XmlTree) -> Result<Skeleton, Box<dyn Error>> {
         if node.name.local_name != "node" {
             return Err(Box::new(SkeletonParseError));
         }

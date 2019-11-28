@@ -76,7 +76,7 @@ impl IndexAccessor {
         (&self.vertex.source[..], tex_coord, normal)
     }
 
-    pub fn parse_accessor(node: &XmlNode, tree: &XmlTree) -> Result<IndexAccessor, Box<Error>> {
+    pub fn parse_accessor(node: &XmlNode, tree: &XmlTree) -> Result<IndexAccessor, Box<dyn Error>> {
         let mut found = false;
         let mut vertex: (usize, Option<&str>, bool) = (0, None, false);
         let mut normal: (Option<usize>, Option<&str>, bool)  = (None, None, false);

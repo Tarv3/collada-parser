@@ -32,7 +32,7 @@ impl MeshParser {
         None
     }
 
-    pub fn parse_mesh(node: &XmlNode, tree: &XmlTree) -> Result<Self, Box<Error>> {
+    pub fn parse_mesh(node: &XmlNode, tree: &XmlTree) -> Result<Self, Box<dyn Error>> {
         if node.name.local_name != "mesh" {
             return Err(Box::new(MeshParseError));
         }
@@ -79,7 +79,7 @@ impl MeshParser {
         )
     }
 
-    pub fn into_mesh<T: Vertex>(&self) -> Result<GenericMesh<T>, Box<Error>> {
+    pub fn into_mesh<T: Vertex>(&self) -> Result<GenericMesh<T>, Box<dyn Error>> {
         if self.primitive_elements.is_empty() {
             return Err(Box::new(MeshError));
         }
@@ -105,7 +105,7 @@ impl MeshParser {
         let mut vertices = vec![];
         let count = self.vertices.count().ok_or(MeshError)?;
         for i in 0..count {
-            let mut attributes = self.vertices.get_nth_attributes(i, self.sources.as_ref());
+            let attributes = self.vertices.get_nth_attributes(i, self.sources.as_ref());
             let vertex = T::from_attributes(attributes).ok_or(MeshError)?;
             vertices.push(vertex);
         }
@@ -210,7 +210,7 @@ pub struct GenericMesh<T: Vertex> {
 }
 
 impl<T: Vertex> GenericMesh<T> {
-    pub fn parse_mesh(node: &XmlNode, tree: &XmlTree) -> Result<GenericMesh<T>, Box<Error>> {
+    pub fn parse_mesh(node: &XmlNode, tree: &XmlTree) -> Result<GenericMesh<T>, Box<dyn Error>> {
         let parser = MeshParser::parse_mesh(node, tree)?;
         Ok(parser.into_mesh()?)
     }

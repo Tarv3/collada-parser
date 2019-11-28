@@ -45,7 +45,7 @@ impl XmlTree {
         }
     }
 
-    pub fn write_tree<W: Write>(&self, indent_size: usize, writer: &mut W) -> Result<(), Box<Error>> {
+    pub fn write_tree<W: Write>(&self, indent_size: usize, writer: &mut W) -> Result<(), Box<dyn Error>> {
         for node in self.nodes.iter().filter(|node| node.parent.is_none()) {
             node.write_node(&self, 0, indent_size, writer)?;
         }
@@ -71,7 +71,7 @@ impl XmlTree {
         })
     }
 
-    pub fn parse_xml<R: Read>(reader: EventReader<R>) -> Result<XmlTree, Box<Error>> {
+    pub fn parse_xml<R: Read>(reader: EventReader<R>) -> Result<XmlTree, Box<dyn Error>> {
         let mut node_stack: Vec<(usize, String)> = vec![];
 
         let mut tree = XmlTree::new();

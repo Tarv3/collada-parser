@@ -31,7 +31,7 @@ impl<T: FromStr> DataSource<T> {
         self.accessor.count()
     }
 
-    pub fn parse_source(node: &XmlNode, tree: &XmlTree, array_name: &str) -> Result<DataSource<T>, Box<Error>> {
+    pub fn parse_source(node: &XmlNode, tree: &XmlTree, array_name: &str) -> Result<DataSource<T>, Box<dyn Error>> {
         if node.name.local_name != "source" {
             return Err(Box::new(DataSourceError))
         }

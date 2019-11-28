@@ -12,7 +12,7 @@ pub struct AnimationParser {
 }
 
 impl AnimationParser {
-    pub fn parse_animation(node: &XmlNode, tree: &XmlTree) -> Result<AnimationParser, Box<Error>> {
+    pub fn parse_animation(node: &XmlNode, tree: &XmlTree) -> Result<AnimationParser, Box<dyn Error>> {
         if node.name.local_name != "animation" {
             return Err(Box::new(AnimationParseError));
         }
@@ -87,7 +87,7 @@ pub struct Animation {
 }
 
 impl Animation {
-    pub fn parse_animation(node: &XmlNode, tree: &XmlTree) -> Result<Animation, Box<Error>> {
+    pub fn parse_animation(node: &XmlNode, tree: &XmlTree) -> Result<Animation, Box<dyn Error>> {
         let parser = AnimationParser::parse_animation(node, tree)?;
         Ok(parser.into_animation()?)
     }

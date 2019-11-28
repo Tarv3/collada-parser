@@ -31,7 +31,7 @@ impl<T> Accessor<T> {
         Some(&array[start..end])
     }
 
-    pub fn parse_accessor(node: &XmlNode, tree: &XmlTree) -> Result<Accessor<T>, Box<Error>> {
+    pub fn parse_accessor(node: &XmlNode, tree: &XmlTree) -> Result<Accessor<T>, Box<dyn Error>> {
         if node.name.local_name != "accessor" {
             return Err(Box::new(AccessorParseError))
         }

@@ -45,7 +45,7 @@ impl PrimitiveIndices {
         self.element_count
     }
 
-    pub fn parse_indices(node: &XmlNode, tree: &XmlTree) -> Result<PrimitiveIndices, Box<Error>> {
+    pub fn parse_indices(node: &XmlNode, tree: &XmlTree) -> Result<PrimitiveIndices, Box<dyn Error>> {
         let accessor = IndexAccessor::parse_accessor(node, tree)?;
         let mut indices = vec![];
 
@@ -91,7 +91,7 @@ impl PrimitiveElement {
         self.count
     }
 
-    pub fn parse_primitive_element(node: &XmlNode, tree: &XmlTree) -> Result<PrimitiveElement, Box<Error>> {
+    pub fn parse_primitive_element(node: &XmlNode, tree: &XmlTree) -> Result<PrimitiveElement, Box<dyn Error>> {
         let count = node.get_attribute_with_name("count").ok_or(PrimitiveElementError)?;
         let count: usize = count.parse()?;
 

@@ -38,7 +38,7 @@ impl VertexWeights {
         }))
     }
 
-    pub fn parse_vertex_weights(node: &XmlNode, tree: &XmlTree) -> Result<VertexWeights, Box<Error>> {
+    pub fn parse_vertex_weights(node: &XmlNode, tree: &XmlTree) -> Result<VertexWeights, Box<dyn Error>> {
         if node.name.local_name != "vertex_weights" {
             return Err(Box::new(VertexWeightsError));
         }

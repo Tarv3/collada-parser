@@ -18,7 +18,7 @@ impl SkeletonNode {
         self.children.as_slice()
     }
 
-    pub fn parse_node(node: &XmlNode, tree: &XmlTree, parent: Option<usize>) -> Result<SkeletonNode, Box<Error>> {
+    pub fn parse_node(node: &XmlNode, tree: &XmlTree, parent: Option<usize>) -> Result<SkeletonNode, Box<dyn Error>> {
         let id = node.get_attribute_with_name("id").ok_or(MissingAttributeError { attribute_name: String::from("id") })?;
         let default_trans = parse_transformation(node, tree)?;
 

@@ -13,7 +13,7 @@ impl Controller {
         &self.skin.source[1..]
     }
 
-    pub fn parse_controller(node: &XmlNode, tree: &XmlTree) -> Result<Controller, Box<Error>> {
+    pub fn parse_controller(node: &XmlNode, tree: &XmlTree) -> Result<Controller, Box<dyn Error>> {
         if node.name.local_name != "controller" {
             return Err(Box::new(ControllerParseError));
         }
