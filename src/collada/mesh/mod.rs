@@ -40,9 +40,8 @@ impl MeshParser {
         let mut sources: Vec<DataSource<f32>> = vec![];
         let mut vertices = Vertices::new();
         let mut primitive_elements: Vec<PrimitiveElement> = vec![];
-        let children = node.get_children().ok_or(MeshParseError)?;
 
-        for child in tree.nodes_iter(children.iter().map(|x| *x)) {
+        for child in tree.nodes_iter(node.get_children()) {
             let child = child.unwrap();
 
             match child.name.local_name.as_ref() {

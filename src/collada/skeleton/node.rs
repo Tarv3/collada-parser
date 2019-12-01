@@ -5,7 +5,7 @@ use std::error::Error;
 
 
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SkeletonNode {
     pub id: String,
     pub parent: Option<usize>,

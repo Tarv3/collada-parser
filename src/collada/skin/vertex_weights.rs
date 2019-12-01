@@ -49,8 +49,7 @@ impl VertexWeights {
         let mut vertex_weight_count: Vec<usize> = vec![];
         let mut indices: Vec<usize> = vec![];
 
-        let children = node.get_children().ok_or(VertexWeightsError)?;
-        for child in tree.nodes_iter(children.iter().cloned()) {
+        for child in tree.nodes_iter(node.get_children()) {
             let child = child.unwrap();
             
             match child.name.local_name.as_ref() {

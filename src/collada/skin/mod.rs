@@ -14,6 +14,7 @@ pub struct JointWeight {
 
 #[derive(Debug)]
 pub struct SkinParser {
+    // Name of target mesh
     source: String,
     bind_shape_matrix: Matrix4,
     joint_names: DataSource<String>,
@@ -55,8 +56,7 @@ impl SkinParser {
         let mut skin_weights: Option<DataSource<f32>> = None;
         let mut vertices = None;
 
-        let children = node.get_children().ok_or(SkinParseError)?;
-        for child in tree.nodes_iter(children.iter().cloned()) {
+        for child in tree.nodes_iter(node.get_children()) {
             let child = child.unwrap();
 
             match child.name.local_name.as_ref() {

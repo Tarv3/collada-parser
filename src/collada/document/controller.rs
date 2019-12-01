@@ -19,9 +19,8 @@ impl Controller {
         }
         let id = node.get_attribute_with_name("id").ok_or(MissingAttributeError { attribute_name: "id".to_string() })?;
         let mut skin = None;
-        let children = node.get_children().ok_or(ControllerParseError)?;
 
-        for child in tree.nodes_iter(children.iter().map(|x| *x)) {
+        for child in tree.nodes_iter(node.get_children()) {
             let child = child.unwrap();
             match child.name.local_name.as_ref() {
                 "skin" => match skin.is_none() {

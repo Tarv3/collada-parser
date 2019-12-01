@@ -96,10 +96,17 @@ impl XmlNode {
         Ok(())
     }
 
-    pub fn get_children(&self) -> Option<&[usize]> {
+    pub fn has_children(&self) -> bool {
+        match &self.data {
+            Some(OwnedData::Children(children)) => !children.is_empty(),
+            _ => false
+        }
+    }
+
+    pub fn get_children<'a>(&'a self) -> impl Iterator<Item = usize> + 'a {
         match self.data {
-            Some(OwnedData::Children(ref children)) => Some(children.as_slice()),
-            _ => None
+            Some(OwnedData::Children(ref children)) => children.iter().cloned(),
+            _ => [].iter().cloned()
         }
     }
 
@@ -108,5 +115,17 @@ impl XmlNode {
             Some(OwnedData::Characters(ref characters)) => Some(characters),
             _ => None
         }
+    }
+
+    pub fn get_children_with_name<'a, 'b: 'a, 'c: 'b>(
+        &'a self,
+        name: &'c str, 
+        tree: &'b XmlTree
+    ) -> impl Iterator<Item = &'b XmlNode> + 'a {
+        tree.nodes_iter(self.get_children())
+            .filter(|node| node.is_some())
+            .map(|node| node.unwrap())
+            .filter(move |node| node.name.local_name == name)
+            
     }
 }

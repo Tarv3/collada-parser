@@ -41,8 +41,7 @@ impl<T: FromStr> DataSource<T> {
         let mut accessor: Option<Accessor<T>> = None;
         let mut array: Vec<T> = vec![];
 
-        let children = node.get_children().ok_or(DataSourceError)?;
-        for child in tree.nodes_iter(children.iter().map(|x| *x)) {
+        for child in tree.nodes_iter(node.get_children()) {
             let child = child.ok_or(DataSourceError)?;
             match child.name.local_name.as_ref() {
                 x if x == array_name  => {
@@ -59,12 +58,9 @@ impl<T: FromStr> DataSource<T> {
                         return Err(Box::new(DataSourceError));
                     }
 
-                    let child_children = child.get_children().ok_or(DataSourceError)?;
-                    if child_children.len() != 1 {
-                        return Err(Box::new(DataSourceError));
-                    }
+                    let mut childs_children = child.get_children();
 
-                    let accessor_index = child_children[0];
+                    let accessor_index = childs_children.next().ok_or(DataSourceError)?;
                     let accessor_node = tree.get_node(accessor_index).ok_or(DataSourceError)?;
                     accessor = Some(Accessor::parse_accessor(accessor_node, tree)?);
                 }

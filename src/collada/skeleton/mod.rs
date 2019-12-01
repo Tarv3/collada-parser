@@ -1,11 +1,11 @@
-use collada::{error::*, Animation};
+use collada::error::*;
 use xml_tree::*;
 use self::node::*;
 use std::error::Error;
 
 pub mod node;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Skeleton {
     pub id: String,
     pub nodes: Vec<SkeletonNode>,
@@ -30,18 +30,6 @@ impl Skeleton {
         None
     }
 
-    pub fn animations<'a>(&'a self, animations: &'a [Animation]) -> impl Iterator<Item = (usize, Option<&'a Animation>)> + 'a {
-        self.nodes.iter().enumerate().map(move |(i, node)| {
-            for animation in animations.iter() {
-                if node.id == &animation.target[..node.id.len()] {
-                    return (i, Some(animation))
-                }
-            }
-
-            (i, None)
-        })
-    } 
-
     fn parse_node(&mut self, node: &XmlNode, tree: &XmlTree, index_stack: &mut Vec<usize>) -> Result<usize, Box<dyn Error>> {
         if node.name.local_name != "node" {
             return Err(Box::new(SkeletonParseError));
@@ -53,15 +41,12 @@ impl Skeleton {
         let skeleton_node = SkeletonNode::parse_node(node, tree, parent)?;
         self.nodes.push(skeleton_node);
 
-        let children = match node.get_children() {
-            Some(children) => children,
-            None => {
-                let index = index_stack.pop();
-                return Ok(index.unwrap());
-            },
+        if !node.has_children() {
+            let index = index_stack.pop();
+            return Ok(index.unwrap());
         };
 
-        for child in tree.nodes_iter(children.iter().cloned()) {
+        for child in tree.nodes_iter(node.get_children()) {
             let child = child.unwrap();
             if child.name.local_name != "node" {
                 continue;

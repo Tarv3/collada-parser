@@ -53,14 +53,17 @@ impl XmlTree {
         Ok(())
     }
 
-    pub fn nodes_with_name(&self, name: &str) -> Option<&[usize]> {
+    pub fn nodes_with_name<'a>(&'a self, name: &str) -> Box<dyn Iterator<Item = &'a XmlNode> + 'a> {
         match self.node_names.get(name) {
-            Some(nodes) => Some(nodes.as_slice()),
-            None => None
+            Some(nodes) => Box::new(self.nodes_iter(nodes.iter().cloned()).map(|node| node.unwrap())),
+            None => Box::new(None.iter())
         }
     }
 
-    pub fn nodes_iter(&self, nodes: impl Iterator<Item = usize>) -> impl Iterator<Item = Option<&XmlNode>> {
+    pub fn nodes_iter(
+        &self, 
+        nodes: impl Iterator<Item = usize>
+    ) -> impl Iterator<Item = Option<&XmlNode>> {
         nodes.map(move |index| {
             if index < self.nodes.len() {
                 Some(&self.nodes[index])

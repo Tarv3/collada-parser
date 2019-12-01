@@ -83,9 +83,7 @@ impl IndexAccessor {
         let mut color: (Option<usize>, Option<&str>, bool)  = (None, None, false);
         let mut tex_coord: (Option<usize>, Option<&str>, bool)  = (None, None, false);
 
-        let children = node.get_children().ok_or(IndexAccessorError)?;
-
-        for child in tree.nodes_iter(children.iter().map(|x| *x)) {
+        for child in tree.nodes_iter(node.get_children()) {
             let child = child.unwrap();
             match child.name.local_name.as_ref() {
                 "input" => {

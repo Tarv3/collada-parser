@@ -19,8 +19,7 @@ pub fn parse_array<T: FromStr>(array: &str) -> Result<Vec<T>, ArrayError> {
 pub fn parse_transformation(node: &XmlNode, tree: &XmlTree) -> Result<Matrix4, Box<dyn Error>> {
     let mut matrix = Matrix4::identity();
 
-    let children = node.get_children().ok_or(TransformationParseError)?;
-    for child in tree.nodes_iter(children.iter().cloned()) {
+    for child in tree.nodes_iter(node.get_children()) {
         let child = child.unwrap();
 
         match child.name.local_name.as_ref() {

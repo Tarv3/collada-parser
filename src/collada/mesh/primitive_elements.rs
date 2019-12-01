@@ -49,9 +49,7 @@ impl PrimitiveIndices {
         let accessor = IndexAccessor::parse_accessor(node, tree)?;
         let mut indices = vec![];
 
-        let children = node.get_children().ok_or(PrimitiveIndicesError)?;
-
-        for child in tree.nodes_iter(children.iter().map(|x| *x)) {
+        for child in tree.nodes_iter(node.get_children()) {
             let child = child.unwrap();
 
             match child.name.local_name.as_ref() {

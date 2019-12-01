@@ -42,9 +42,7 @@ impl<T> Accessor<T> {
         let stride: usize = stride.parse()?;
         let mut parameters = vec![];
 
-        let children = node.get_children().ok_or(AccessorParseError)?;
-
-        for child in tree.nodes_iter(children.iter().map(|x| *x)) {
+        for child in tree.nodes_iter(node.get_children()) {
             let child = child.ok_or(AccessorParseError)?;
             match child.name.local_name.as_ref() {
                 "param" => {

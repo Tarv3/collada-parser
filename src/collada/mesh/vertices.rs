@@ -85,9 +85,8 @@ impl Vertices {
         }
         let mut inputs = vec![];
         let id = node.get_attribute_with_name("id").ok_or(VerticesError)?;
-        let children = node.get_children().ok_or(VerticesError)?;
 
-        for child in tree.nodes_iter(children.iter().map(|x| *x)) {
+        for child in tree.nodes_iter(node.get_children()) {
             let child = child.unwrap();
 
             match child.name.local_name.as_ref() {
