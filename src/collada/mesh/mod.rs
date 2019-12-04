@@ -1,13 +1,14 @@
 use xml_tree::*;
-use super::{error::*, source::DataSource};
-use super::*;
-use self::{primitive_elements::*, vertices::Vertices};
+use super::{*, error::*, source::DataSource};
+use self::vertices::Vertices;
 use math::*;
 use std::error::Error;
 
 pub mod index;
 pub mod primitive_elements;
 pub mod vertices;
+
+pub use self::primitive_elements::*;
 
 pub enum SourceOrVertices<'a> {
     Source(&'a DataSource<f32>),

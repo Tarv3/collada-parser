@@ -20,10 +20,10 @@ use xml_tree::XmlTree;
 
 #[derive(Debug)]
 pub struct Document {
-    geometries: HashMap<String, Mesh>,
-    animations: HashMap<String, Animation>,
-    skins: HashMap<String, Skin>,
-    scenes: Vec<VisualScene>,
+    pub geometries: HashMap<String, Mesh>,
+    pub animations: HashMap<String, Animation>,
+    pub skins: HashMap<String, Skin>,
+    pub scenes: Vec<VisualScene>,
 }
 
 impl Document {
@@ -56,32 +56,15 @@ impl Document {
         scene.get_skeletons()
     }
 
-    // Will return all skins that have a skeleton and mesh
-    // pub fn skin_skeleton_mesh_iter<'a>(&'a self, scene: usize) -> impl Iterator<Item = (&'a Skin, &'a Skeleton, &'a Geometry)> + 'a {
-    //     let scene = &self.scenes[scene];
+    pub fn get_skeletons(&self) -> Vec<Skeleton> {
+        let mut skeletons = vec![];
+        
+        for scene in self.scenes.iter() {
+            scene.add_skeletons(&mut skeletons);
+        }
 
-    //     scene.nodes
-    //         .iter()
-    //         .filter(|x| x.data.is_controller_instance())
-    //         .filter(move |x| {
-    //             let controller = x.data.unwrap_controller_ref();
-    //             let skin = self.get_skin_with_name(&controller.url[1..]);
-    //             let mesh = match skin {
-    //                 Some(skin) => self.mesh_with_name(&skin.source[1..]).is_some(),
-    //                 None => false,
-    //             };
-    //             let skeleton = scene.get_skeleton_with_base_node(&controller.skeleton[1..]).is_some();
-    //             skin.is_some()
-    //             && mesh && skeleton
-    //         })
-    //         .map(move |x| {
-    //             let controller = x.data.unwrap_controller_ref();
-    //             let skin = self.get_skin_with_name(&controller.url[1..]).unwrap();
-    //             let mesh = self.mesh_with_name(&skin.source[1..]).unwrap();
-    //             let skeleton = scene.get_skeleton_with_base_node(&controller.skeleton[1..]).unwrap();
-    //             (skin, skeleton, mesh)
-    //         })
-    // }
+        skeletons
+    }
 
     pub fn parse_geometries(&mut self, tree: &XmlTree) -> Result<(), Box<dyn Error>> {
         for node in tree.nodes_with_name("library_geometries") {
@@ -145,13 +128,24 @@ impl Document {
         Ok(())
     }
 
+    pub fn mesh_iter(&self) -> impl Iterator<Item = (&String, &Mesh)> {
+        self.geometries.iter()
+    }
+
+    pub fn skin_with_source_iter<'a, 'b: 'a>(
+        &'a self, 
+        name: &'b str
+    ) -> impl Iterator<Item = (&'a String, &'a Skin)> + 'a {
+        self.skins.iter().filter(move |(_, skin)| skin.is_for_mesh(name))
+    }
+
     pub fn parse_document(tree: &XmlTree) -> Result<Document, Box<dyn Error>> {
         let mut document = Document::new();
 
         document.parse_geometries(tree)?;
         document.parse_animations(tree)?;
         document.parse_skins(tree)?;
-        document.parse_animations(tree)?;
+        document.parse_visual_scenes(tree)?;
 
         Ok(document)
     }

@@ -142,6 +142,10 @@ pub struct Skin {
 }
 
 impl Skin {
+    pub fn is_for_mesh(&self, name: &str) -> bool {
+        &self.source[1..] == name
+    }
+
     pub fn parse_skin(node: &XmlNode, tree: &XmlTree, name: &str) -> Result<Skin, Box<dyn Error>> {
         let parser = SkinParser::parse_skin(node, tree, name)?;
         Ok(parser.to_skin()?)

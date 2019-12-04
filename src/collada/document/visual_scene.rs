@@ -42,91 +42,6 @@ impl InstanceController {
     }
 }
 
-// #[derive(Debug)]
-// pub enum SceneData {
-//     Skeleton(Skeleton),
-//     ControllerInstance(InstanceController),
-//     None,
-// }
-
-// impl SceneData {
-//     pub fn is_none(&self) -> bool {
-//         match self {
-//             SceneData::None => true, 
-//             _ => false
-//         }
-//     }
-
-//     pub fn is_skeleton(&self) -> bool {
-//         match self {
-//             SceneData::Skeleton(_) => true, 
-//             _ => false
-//         }
-//     }
-
-//     pub fn unwrap_skeleton_ref(&self) -> &Skeleton {
-//         match self {
-//             SceneData::Skeleton(skeleton) => skeleton,
-//             _ => panic!("Tried to get ref of non-skeleton scene data"),
-//         }
-//     }
-
-//     pub fn is_controller_instance(&self) -> bool {
-//         match self {
-//             SceneData::ControllerInstance(_) => true, 
-//             _ => false
-//         }
-//     }
-
-//     pub fn unwrap_controller_ref(&self) -> &InstanceController {
-//         match self {
-//             SceneData::ControllerInstance(controller) => controller,
-//             _ => panic!("Tried to get ref of non-controller scene data"),
-//         }
-//     }
-// }
-
-// #[derive(Debug)]
-// pub struct SceneNode {
-//     pub transformation: Matrix4,
-//     pub data: SceneData,
-// }
-
-// impl SceneNode {
-//     pub fn parse_node(node: &XmlNode, tree: &XmlTree) -> Result<SceneNode, Box<dyn Error>> {
-//         let matrix = parse_transformation(node, tree)?;
-//         let mut data = SceneData::None;
-
-//         for child in tree.nodes_iter(node.get_children()) {
-//             let child = child.unwrap();
-//             let is_none = data.is_none();
-//             match child.name.local_name.as_ref() {
-//                 "node" => {
-//                     if Some("JOINT") != child.get_attribute_with_name("type") || !is_none {
-//                         return Err(Box::new(SceneNodeError {id: child.get_attribute_with_name("id").map(|x| x.to_string())}));
-//                     } 
-//                     let skeleton = Skeleton::parse_skeleton(child, tree)?;
-//                     data = SceneData::Skeleton(skeleton);
-//                 }
-//                 "instance_controller" => {
-//                     if !is_none {
-//                         return Err(Box::new(SceneNodeError {id: child.get_attribute_with_name("id").map(|x| x.to_string())}));
-//                     }
-
-//                     let controller = InstanceController::parse_controller(child, tree)?;
-//                     data = SceneData::ControllerInstance(controller);
-//                 }
-//                 _ => {}
-//             }
-//         }
-
-//         Ok(SceneNode {
-//             transformation: matrix,
-//             data,
-//         })
-//     }
-// }
-
 #[derive(Debug)]
 pub struct VisualScene {
     pub id: String,
@@ -134,6 +49,12 @@ pub struct VisualScene {
 }
 
 impl VisualScene {
+    pub fn add_skeletons(&self, skeletons: &mut Vec<Skeleton>) {
+        for node in self.nodes.iter() {
+            node.add_skeletons(skeletons);
+        }
+    } 
+
     pub fn get_skeletons(&self) -> Vec<Skeleton> {
         let mut skeletons = vec![];
 
@@ -209,7 +130,7 @@ impl Node {
             .ok_or(MissingAttributeError { attribute_name: "name".to_string() })?;
         let _type = node.get_attribute_with_name("type")
             .ok_or(MissingAttributeError { attribute_name: "type".to_string() })?;
-        
+
         if _type == "JOINT" {
             let skeleton = Skeleton::parse_skeleton(node, tree)?;
             return Ok(Node {
