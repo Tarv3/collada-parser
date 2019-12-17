@@ -139,6 +139,10 @@ impl Document {
         self.skins.iter().filter(move |(_, skin)| skin.is_for_mesh(name))
     }
 
+    pub fn animations_iter<'a>(&'a self) -> impl Iterator<Item = &'a Animation> + 'a {
+        self.animations.values()
+    }
+
     pub fn parse_document(tree: &XmlTree) -> Result<Document, Box<dyn Error>> {
         let mut document = Document::new();
 

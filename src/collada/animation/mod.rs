@@ -48,7 +48,7 @@ impl SubAnimationParser {
         || transformations.is_none()
         || target.is_none()
         {
-                    return Err(Box::new(AnimationParseError));
+            return Err(Box::new(AnimationParseError));
         }
 
         Ok(SubAnimationParser {
